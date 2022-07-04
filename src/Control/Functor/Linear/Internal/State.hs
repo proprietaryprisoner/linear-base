@@ -142,5 +142,6 @@ instance MonadTrans (StateT s) where
 
 instance Dupable s => MonadTransControl (StateT s) where
   type StT (StateT s) a = (a, s)
-  restoreT msta = StateT (`lseq` msta)
-  liftWith f = StateT (\s -> case dup s of (s1,s2) -> fmap (,s1) (f (\tma -> runStateT tma s2)))
+  liftWith withRestoreT withUnlift =
+      StateT (\s -> case dup s of (s1,s2) -> fmap (,s1) (withUnlift (\ma -> runStateT ma s2))) >>=
+        (withRestoreT (\msta -> StateT (`lseq` msta)) . pure)

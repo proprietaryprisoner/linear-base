@@ -102,12 +102,13 @@ instance Dupable r => MonadTrans (ReaderT r) where
   lift x = ReaderT (`lseq` x)
 
 instance Dupable r => MonadTransUnlift (ReaderT r) where
-  liftWithUnlift = liftWith
+  liftWithUnlift f = ReaderT (\r -> f (\tma -> runReaderT tma r))
 
 instance Dupable r => MonadTransControl (ReaderT r) where
   type StT (ReaderT r) a = a
-  liftWith f = ReaderT (\r -> f (\tma -> runReaderT tma r))
-  restoreT msta = ReaderT (`lseq` msta)
+  liftWith withRestoreT withUnlift =
+      ReaderT (\r -> withUnlift (\ma -> runReaderT ma r)) >>=
+        (withRestoreT (\msta -> ReaderT (`lseq` msta)) . pure)
 
 -- # Instances for nonlinear ReaderT
 -------------------------------------------------------------------------------

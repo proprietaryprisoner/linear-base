@@ -23,5 +23,7 @@ class MonadTrans t => MonadTransUnlift t where
 
 class MonadTrans t => MonadTransControl t where
   type StT t a :: Type
-  liftWith :: Monad m => ((forall x. t m x %1 -> m (StT t x)) %1 -> m a) %1 -> t m a
-  restoreT :: Monad m => m (StT t a) %1 -> t m a
+  liftWith :: Monad m =>
+      ((forall x. m (StT t x) %1 -> t m x) %1 -> m a %1 -> t m b) %1 ->
+      ((forall x. t m x %1 -> m (StT t x)) %1 -> m a) %1 ->
+      t m b

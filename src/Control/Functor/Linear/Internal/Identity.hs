@@ -52,9 +52,8 @@ instance MonadTrans IdentityT where
   lift = IdentityT
 
 instance MonadTransUnlift IdentityT where
-  liftWithUnlift = liftWith
+  liftWithUnlift f = IdentityT $ f runIdentityT
 
 instance MonadTransControl IdentityT where
   type StT IdentityT a = a
-  liftWith f = IdentityT $ f runIdentityT
-  restoreT = IdentityT
+  liftWith withRestoreT withUnlift = withRestoreT IdentityT (withUnlift runIdentityT)
