@@ -5,6 +5,7 @@
 {-# LANGUAGE RebindableSyntax #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
+{-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# OPTIONS_HADDOCK hide #-}
 
@@ -138,3 +139,8 @@ instance Monad m => Monad (StateT s m) where
 
 instance MonadTrans (StateT s) where
   lift x = StateT (\s -> fmap (,s) x)
+
+instance Dupable s => MonadTransControl (StateT s) where
+  type StT (StateT s) a = (a, s)
+  restoreT msta = StateT (`lseq` msta)
+  liftWith f = StateT (\s -> case dup s of (s1,s2) -> fmap (,s1) (f (\tma -> runStateT tma s2)))

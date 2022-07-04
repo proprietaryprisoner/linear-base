@@ -32,6 +32,7 @@ library
         Control.Monad.IO.Class.Linear
         Control.Functor.Linear
         Control.Functor.Linear.Internal.Class
+        Control.Functor.Linear.Internal.Identity
         Control.Functor.Linear.Internal.Instances
         Control.Functor.Linear.Internal.Kan
         Control.Functor.Linear.Internal.MonadTrans

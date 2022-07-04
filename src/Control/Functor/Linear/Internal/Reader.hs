@@ -1,5 +1,6 @@
 {-# OPTIONS -Wno-orphans #-}
 {-# LANGUAGE LinearTypes #-}
+{-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# OPTIONS_HADDOCK hide #-}
 
@@ -99,6 +100,14 @@ asks f = ReaderT (return . f)
 
 instance Dupable r => MonadTrans (ReaderT r) where
   lift x = ReaderT (`lseq` x)
+
+instance Dupable r => MonadTransUnlift (ReaderT r) where
+  liftWithUnlift = liftWith
+
+instance Dupable r => MonadTransControl (ReaderT r) where
+  type StT (ReaderT r) a = a
+  liftWith f = ReaderT (\r -> f (\tma -> runReaderT tma r))
+  restoreT msta = ReaderT (`lseq` msta)
 
 -- # Instances for nonlinear ReaderT
 -------------------------------------------------------------------------------
